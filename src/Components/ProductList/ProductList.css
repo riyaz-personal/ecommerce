@@ -1,0 +1,19 @@
+.product-lists .card{
+    margin-bottom: 30px;
+    transition: all 0.2s ease;
+}
+
+.hover-scale-110:hover{
+    transform: scale(1.05) !important;
+    transition: all 0.2s ease;
+}
+
+.hover-shadow-lg:hover {
+    box-shadow: 0 1rem 3rem rgba(31, 45, 61, 0.125) !important;
+    transition: all 0.2s ease;
+}
+.row {
+    margin-bottom: 5px;
+}
+
+

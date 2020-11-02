@@ -1,0 +1,10 @@
+.row {
+    margin-bottom: 5px;
+}
+.bg-section-secondary {
+    background-color: #FAFBFE;
+}
+.slice {
+    position: relative;    
+    padding-bottom: 4rem;
+}
