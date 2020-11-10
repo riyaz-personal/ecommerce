@@ -51,3 +51,10 @@ export const STORE_ORDER_NUMBER_ERROR = "STORE_ORDER_NUMBER_ERROR";
  * Reset order values
  */
 export const RESET_ORDER_STATE = "RESET_ORDER_STATE";
+
+/**
+ * Logged In User data status
+ */
+export const USER_DATA_START = "USER_DATA_START";
+export const USER_DATA_SUCCESS = "USER_DATA_SUCCESS";
+export const USER_DATA_ERROR = "USER_DATA_ERROR";

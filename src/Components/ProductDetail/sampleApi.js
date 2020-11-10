@@ -23,7 +23,7 @@ const productInfo = {
         quantity: "10",
         pro_desc: "",
       },
-      pro_image: [],
+      pro_image: ["https://v3.shopview.net/image/data/product/adidas/3_image_280418104253_5ae402d5a01c7.png","https://v3.shopview.net/image/data/product/adidas/2_image_270418163453_5ae303d5bc586.png", "https://v3.shopview.net/image/data/product/adidas/4_image_280418152550_5ae4452661e30.png"],
       releated_product: {
         1: {
           product_id: "1",

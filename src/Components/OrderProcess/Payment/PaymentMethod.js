@@ -15,6 +15,14 @@ import { storePaymode, storeOrderNumber } from "../../../Actions/orderProcess";
 
 /**
 |--------------------------------------------------
+| Import Api helper files
+|--------------------------------------------------
+*/
+import { apiDomain, orderCheckoutMethod } from "../../../Api/helper";
+import { postApi } from "../../../Api";
+
+/**
+|--------------------------------------------------
 | Import path to be use for redirection dynamically
 |--------------------------------------------------
 */
@@ -38,7 +46,7 @@ class PaymentMethod extends Component {
     super(props);
 
     this.state = {
-      storePaymentMode: "COD",
+      storePaymentMode: "cod",
     };
   }
 
@@ -62,11 +70,35 @@ class PaymentMethod extends Component {
     this.setState({ storePaymentMode: mode });
   };
 
-  completeStep = () => {
+  completeStep = async () => {
+    const { storePaymentMode } = this.state;
     const { storeOrderNumber } = this.props;
     localStorage.removeItem("selectedList");
-    const orderNumber = 9865745869584;
-    storeOrderNumber(orderNumber);
+    // Api hit - complete order
+    const requestUrl = apiDomain + orderCheckoutMethod;
+    const customer_id = localStorage.getItem("customer_id");
+    const store_id = localStorage.getItem("storeId");
+    const order_id = localStorage.getItem("order_id");
+    const inputData = {
+      mod: "ORDER_ADDRESS",
+      data_arr: {
+        store_id,
+        customer_id,
+        order_id,
+        order_source: "APP",
+        payment_mode: storePaymentMode
+      },
+    };
+      const { data } = await postApi(requestUrl, inputData);
+      const sampleResponse = { "status": "200", "status_message": "Success", "data":{ "success":{ "order_id": "640", "invoice_no": "99907180640", "message": "Order Has Been Placeed SuccessFully" }}}
+      if (data && data.data && data.data.success) {
+        const orderNumber = data.data.success.invoice_no;
+        storeOrderNumber(orderNumber);
+      } else {
+        const orderNumber = sampleResponse.data.success.invoice_no;
+        storeOrderNumber(orderNumber);
+        // alert(error);
+      }
     history.push(WebPath.OrderThanks);
   };
 

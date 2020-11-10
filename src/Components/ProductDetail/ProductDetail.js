@@ -5,7 +5,6 @@
 */
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
 
 /**
 |--------------------------------------------------
@@ -23,6 +22,15 @@ import { searchProductList } from "../../Actions/productList";
 import Header from "../Header";
 import Footer from "../Footer";
 import ProductCount from "../ProductCount";
+import CarouselComponent from './Carousel';
+
+/**
+|--------------------------------------------------
+| Import Api helper files
+|--------------------------------------------------
+*/
+import { apiDomain, productDetailMethod } from "../../Api/helper";
+import { postApi } from "../../Api";
 
 /**
 |--------------------------------------------------
@@ -37,6 +45,7 @@ import sampleApi from "./sampleApi";
 |--------------------------------------------------
 */
 import "./ProductDetail.css";
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 /**
 |--------------------------------------------------
@@ -57,17 +66,29 @@ class ProductDetail extends Component {
 |--------------------------------------------------
 */
 async componentDidMount() {
-  // const { storeSelectList } = this.props;
-  // const param = searchParam + searchAll;
-  // const requestUrl = apiDomain + productMethod + selectMethod + "?" + param;
-  // const { data, error } = await getApi(requestUrl);
-  // if (data && data.length > 0) {
-  //   this.constructApiData(data);
-  // } else {
-  //   alert(error);
-  // }
-  const response = sampleApi.data;
-  let productInfo = await this.constructApiData(response);
+  const { match } = this.props;
+  const productId = match && match.params && match.params.id ? match.params.id : 1
+  const requestUrl = apiDomain + productDetailMethod;
+  const store_id = localStorage.getItem("storeId");
+  const product_id = productId;
+  const inputData = {
+    mod: "GET_DETAIL",
+    data_arr: {
+      store_id,
+      product_id
+    },
+  };
+    this.setState({ loading: true });
+    let productInfo;
+    const { data } = await postApi(requestUrl, inputData);
+    if (data && data.data && data.data.success) {
+      productInfo = await this.constructApiData(data.data);
+      this.constructApiData(data);
+    } else {
+      // alert(error);
+      const response = sampleApi.data;
+      productInfo = await this.constructApiData(response);
+  }
   this.setState({ productInfo });
 }
 
@@ -82,16 +103,16 @@ constructApiData = (data) => {
   if (data && data.success) {
     const productInfo = data.success.product_info;
     productList = {
-      offer: 50,
+      offer: Number(productInfo.mrp) - Number(productInfo.purchase_price),
       productId: productInfo.product_id,
       productImage: selectedImage,
       productName: productInfo.product_name,
       productUnit: productInfo.unit,
-      productSize: "L Size",
       sellingPrice: productInfo.sell_price,
       actualPrice: productInfo.purchase_price,
       availableCount: productInfo.quantity,
-      brandName: productInfo.brand_name
+      brandName: productInfo.brand_name,
+      imageArray: data.success.pro_image
     };
   }
   return productList;
@@ -106,143 +127,15 @@ constructApiData = (data) => {
           <div className="container">
             <div className="row">
               <div className="col-sm-6 product-image">
-                <div
-                  id="carousel-thumb"
-                  className="carousel slide carousel-fade carousel-thumbnails"
-                  data-ride="carousel"
-                >
-                  <div className="carousel-inner" role="listbox">
-                    <div className="carousel-item">
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417815/n5zwxm9ik2zyv8wys8yz.jpg"
-                        alt="Second slide"
-                      />
-                    </div>
-                    <div className="carousel-item active">
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417824/qpr4ojkhru7e3bklqzhg.jpg"
-                        alt="Second slide"
-                      />
-                    </div>
-                    <div className="carousel-item">
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417835/hjazrwi1xnx9otbczzj0.jpg"
-                        alt="Second slide"
-                      />
-                    </div>
-                    <div className="carousel-item">
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417848/klsiv8hgcswzif25rit0.jpg"
-                        alt="Second slide"
-                      />
-                    </div>
-                    <div className="carousel-item">
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417868/kbxz6tjpcjrfrbjnjbmb.jpg"
-                        alt="Second slide"
-                      />
-                    </div>{" "}
-                  </div>
-
-                  <Link
-                    className="carousel-control-prev"
-                    to={"#carousel-thumb"}
-                    role="button"
-                    data-slide="prev"
-                  >
-                    <span
-                      className="carousel-control-prev-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="sr-only">Previous</span>
-                  </Link>
-                  <Link
-                    className="carousel-control-next"
-                    to={"#carousel-thumb"}
-                    role="button"
-                    data-slide="next"
-                  >
-                    <span
-                      className="carousel-control-next-icon"
-                      aria-hidden="true"
-                    ></span>
-                    <span className="sr-only">Next</span>
-                  </Link>
-
-                  <ol
-                    className="carousel-indicators"
-                    style={{ position: "unset", paddingTop: "1rem" }}
-                  >
-                    <li
-                      data-target="#carousel-thumb"
-                      data-slide-to="0"
-                      className=""
-                    >
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417815/n5zwxm9ik2zyv8wys8yz.jpg"
-                        alt={"pinterest"}
-                      />
-                    </li>
-                    <li
-                      data-target="#carousel-thumb"
-                      data-slide-to="1"
-                      className="active"
-                    >
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417824/qpr4ojkhru7e3bklqzhg.jpg"
-                        alt={"pinterest"}
-                      />
-                    </li>
-                    <li
-                      data-target="#carousel-thumb"
-                      data-slide-to="2"
-                      className=""
-                    >
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417835/hjazrwi1xnx9otbczzj0.jpg"
-                        alt={"pinterest"}
-                      />
-                    </li>
-                    <li
-                      data-target="#carousel-thumb"
-                      data-slide-to="3"
-                      className=""
-                    >
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417848/klsiv8hgcswzif25rit0.jpg"
-                        alt={"pinterest"}
-                      />
-                    </li>
-                    <li
-                      data-target="#carousel-thumb"
-                      data-slide-to="4"
-                      className=""
-                    >
-                      <img
-                        className="d-block w-100"
-                        src="http://res.cloudinary.com/blueburyfbd/image/upload/v1597417868/kbxz6tjpcjrfrbjnjbmb.jpg"
-                        alt={"pinterest"}
-                      />
-                    </li>
-                  </ol>
-                </div>
+              <CarouselComponent imageList={productInfo.imageArray} />                
               </div>
 
               <div className="col-sm-6 product-info">
-                <div className="row">
+                {productInfo.offer > 0 && <div className="row">
                   <div className="col-sm-12">
-                    <span className="badge badge-pill badge-bg">37% off</span>
+                    <span className="badge badge-pill badge-bg">{productInfo.offer}% off</span>
                   </div>
-                </div>
+                </div>}
                 <div className="row">
                   <div className="col-sm-12">
                     <span style={{ fontSize: "1.5rem" }}>
@@ -257,14 +150,14 @@ constructApiData = (data) => {
                     </span>
                   </div>
                 </div>
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-sm-12">
                     <span style={{ fontSize: "1.2rem" }}>
                       Color : <span className="colorDot"></span>
                       <span style={{ paddingLeft: "1rem" }}>Black</span>
                     </span>
                   </div>
-                </div>
+                </div> */}
                 <div className="row">
                   <div className="col-sm-12">
                     <span style={{ fontSize: "1.2rem" }}>
@@ -281,7 +174,7 @@ constructApiData = (data) => {
                     </span>
                   </div>
                 </div>
-                <div className="row">
+                {/* <div className="row">
                   <div className="col-sm-12">
                     <span>Size Available in: </span>
                     <br />
@@ -362,7 +255,7 @@ constructApiData = (data) => {
                       </Link>
                     </label>
                   </div>
-                </div>
+                </div> */}
                 <ProductCount data={productInfo} pageName={"individualProduct"}/>                
               </div>
             </div>
@@ -373,11 +266,11 @@ constructApiData = (data) => {
                 <p>Product Name : {productInfo.productName} </p>
                 <p>Unit : {productInfo.productUnit} </p>
                 <p>Manufacturer : {productInfo.brandName}</p>
-                <p>
+                {/* <p>
                   Color :&nbsp;
                   <span className="colorDot"></span>
                   <span style={{ paddingLeft: "0.5rem" }}>Black</span>{" "}
-                </p>
+                </p> */}
               </div>
             </div>
           </div>

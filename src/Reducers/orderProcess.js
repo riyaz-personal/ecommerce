@@ -23,7 +23,7 @@ import {
 export const initialValues = {
   currentPopup: "",
   selectedAddress: {},
-  selectedPayment: "COD",
+  selectedPayment: "cod",
   orderNumber: 0
 };
 

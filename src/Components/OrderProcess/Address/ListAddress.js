@@ -21,8 +21,8 @@ import {
 | Import Api helper files
 |--------------------------------------------------
 */
-import { imagePath } from "../../../Api/helper";
-// import { postApi } from "../../Api";
+import { imagePath, apiDomain, orderAddressMethod } from "../../../Api/helper";
+import { postApi } from "../../../Api";
 
 /**
 |--------------------------------------------------
@@ -77,12 +77,32 @@ class ListAddress extends Component {
     this.setState({ storeAddress: data, showErrMsg: false });
   };
 
-  nextStep = () => {
+  nextStep = async () => {
     const { storeAddress } = this.state;
     const { currentOrderProcess } = this.props;
     const showErrMsg = storeAddress && storeAddress.addressId ? false : true;
+    await this.placeOrderApi(storeAddress.addressId);
     if (!showErrMsg) currentOrderProcess("openPayment");
     this.setState({ showErrMsg });
+  };
+
+  placeOrderApi = async (addressId) => {
+    const requestUrl = apiDomain + orderAddressMethod;
+    const customer_id = localStorage.getItem("customer_id");
+    const store_id = localStorage.getItem("storeId");
+    const order_id = localStorage.getItem("order_id");
+    const address_id = addressId;
+    const inputData = {
+      mod: "ORDER_ADDRESS",
+      data_arr: {
+        store_id,
+        customer_id,
+        order_id,
+        address_id,
+        order_source: "APP"
+      },
+    };
+    await postApi(requestUrl, inputData);    
   };
 
   render() {
@@ -91,99 +111,121 @@ class ListAddress extends Component {
     // const storeListAddress = [];
     return (
       <>
-      <section  style={{paddingTop: "0rem", paddingBottom: "1rem"}} className="bg-section-secondary">
-      <div className="container" style={{paddingRight: "0", paddingLeft: "0", marginLeft: "0", marginRight: "0"}}>
-      <div id="addressListDivContent">
-        <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
-          {storeListAddress && storeListAddress.length === 0 && (
-            <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
-              <div className="row">
-                <div className="col-sm-12" style={{ textAlign: "center"}}>
-                  <img
-                    src={`${PUBLIC_URL}${imagePath}/Ic-Property.png`}
-                    alt={"ICHome"}
-                  />
-                </div>
-              </div>
-              <div className="row">
-                <div className="col-sm-12" style={{ textAlign: "center" }}>
-                  <h6>Please Add the Address for Order delivery </h6>
-                </div>
-              </div>
-            </div>
-          )}
-          {storeListAddress &&
-            storeListAddress.length > 0 &&
-            storeListAddress.map((item, index) => {
-              return (
-                <div className="row" key={index}>
-                  <div className="col-sm-12">
-                    <label
-                      id={`labelAddress${index}`}
-                      name="labelAddress"
-                      style={{
-                        width: "100%",
-                        color: "#55555",
-                        margin: "0.5em",
-                        fontSize: "0.9rem",
-                        padding: "0.5rem",
-                        cursor: "pointer",
-                        background:
-                          item.addressId === storeAddress.addressId
-                            ? "rgb(255, 152, 0)"
-                            : "#eeeeee",
-                      }}
-                      onClick={() => this.handleClick(item)}
-                    >
-                      {item.address}
-                    </label>
-                  </div>
-                </div>
-              );
-            })}
-          {showErrMsg && (
-            <span id="orderAddress_EBox" style={{ color: "red" }}>
-              Please Select the Any One
-            </span>
-          )}
-          <button
-            style={{
-              marginTop: "1rem",
-              color: "#2831c4",
-              float: "right",
-              border: "0",
-              background:"unset",
-              outline:"0"
-            }}
-            onClick={() => this.setProcessPopup("openAddAddress")}
-          >
-            <u>New Address</u>
-          </button>
-        </div>
-
-        {storeListAddress &&
-            storeListAddress.length > 0 && <div
-          className="row"          
+        <section
+          style={{ paddingTop: "0rem", paddingBottom: "1rem" }}
+          className="bg-section-secondary"
         >
           <div
-            className="col-12 btn btn-success"
-            onClick={() => this.nextStep()}
-            style={{ textAlign: "center", margin: "0rem", bottom:" 6.5%", position: "fixed", width: "100%" }}
+            className="container"
+            style={{
+              paddingRight: "0",
+              paddingLeft: "0",
+              marginLeft: "0",
+              marginRight: "0",
+            }}
           >
-            <span
-              style={{
-                textAlign: "center",
-                fontSize: "1.2rem",
-                cursor: "pointer",
-              }}
-            >
-              Next
-            </span>
+            <div id="addressListDivContent">
+              <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
+                {storeListAddress && storeListAddress.length === 0 && (
+                  <div style={{ paddingLeft: "10px", paddingRight: "10px" }}>
+                    <div className="row">
+                      <div
+                        className="col-sm-12"
+                        style={{ textAlign: "center" }}
+                      >
+                        <img
+                          src={`${PUBLIC_URL}${imagePath}/Ic-Property.png`}
+                          alt={"ICHome"}
+                        />
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div
+                        className="col-sm-12"
+                        style={{ textAlign: "center" }}
+                      >
+                        <h6>Please Add the Address for Order delivery </h6>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {storeListAddress &&
+                  storeListAddress.length > 0 &&
+                  storeListAddress.map((item, index) => {
+                    return (
+                      <div className="row" key={index}>
+                        <div className="col-sm-12">
+                          <label
+                            id={`labelAddress${index}`}
+                            name="labelAddress"
+                            style={{
+                              width: "100%",
+                              color: "#55555",
+                              margin: "0.5em",
+                              fontSize: "0.9rem",
+                              padding: "0.5rem",
+                              cursor: "pointer",
+                              background:
+                                item.addressId === storeAddress.addressId
+                                  ? "rgb(255, 152, 0)"
+                                  : "#eeeeee",
+                            }}
+                            onClick={() => this.handleClick(item)}
+                          >
+                            {item.address}
+                          </label>
+                        </div>
+                      </div>
+                    );
+                  })}
+                {showErrMsg && (
+                  <span id="orderAddress_EBox" style={{ color: "red" }}>
+                    Please Select the Any One
+                  </span>
+                )}
+                <button
+                  style={{
+                    marginTop: "1rem",
+                    color: "#2831c4",
+                    float: "right",
+                    border: "0",
+                    background: "unset",
+                    outline: "0",
+                  }}
+                  onClick={() => this.setProcessPopup("openAddAddress")}
+                >
+                  <u>New Address</u>
+                </button>
+              </div>
+
+              {storeListAddress && storeListAddress.length > 0 && (
+                <div className="row">
+                  <div
+                    className="col-12 btn btn-success"
+                    onClick={() => this.nextStep()}
+                    style={{
+                      textAlign: "center",
+                      margin: "0rem",
+                      bottom: " 6.5%",
+                      position: "fixed",
+                      width: "100%",
+                    }}
+                  >
+                    <span
+                      style={{
+                        textAlign: "center",
+                        fontSize: "1.2rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Next
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>}
-      </div>
-      </div>
-      </section>
+        </section>
       </>
     );
   }

@@ -17,3 +17,25 @@
 }
 
 
+.Category-lists .catergory-types{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    list-style-type: none;
+}
+.Category-lists .catergory-types li{
+    background: #26356a;
+    border: 1px solid transparent;
+    color: #fff;
+    border-radius: 50px;
+    padding: 3px 12px;
+    font-size: 13px;
+    margin: 0 8px 8px 0;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.Category-lists .catergory-types li:hover{
+    border: 1px solid #26356a;
+    background: #fff;
+    color: #232269;
+}

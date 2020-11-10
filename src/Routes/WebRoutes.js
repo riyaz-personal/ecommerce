@@ -55,7 +55,7 @@ const WebRoutes = [
     auth: false,
   },
   {
-    path: WebPath.ProductDetail,
+    path: WebPath.ProductDetailId,
     component: ProductDetail,
     exact: true,
     auth: false,

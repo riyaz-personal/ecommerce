@@ -27,14 +27,12 @@ import Footer from "../Footer";
 |--------------------------------------------------
 */
 import {
-  // apiDomain,
-  // productMethod,
-  // searchAll,
-  // searchParam,
-  // selectMethod,
+  apiDomain,
+  masterListMethod,
   storeIdDefault,
+  imagePath,
 } from "../../Api/helper";
-// import { getApi } from "../../Api";
+import { postApi } from "../../Api";
 
 /**
 |--------------------------------------------------
@@ -53,6 +51,13 @@ import "./Home.css";
 
 /**
 |--------------------------------------------------
+| Get public root path folder 
+|--------------------------------------------------
+*/
+const { PUBLIC_URL } = process.env;
+
+/**
+|--------------------------------------------------
 | Rendering Class components
 |--------------------------------------------------
 */
@@ -67,26 +72,33 @@ export class Home extends Component {
   }
 
   async componentDidMount() {
-    // const param = searchParam + searchAll;
-    // const requestUrl = apiDomain + productMethod + selectMethod + "?" + param;
-    // const { data, error } = await getApi(requestUrl);
-    // if (data && data.length > 0) {
-    //   this.constructApiData(data);
-    // } else {
-    //   alert(error);
-    // }
-    const response = sampleApi.response;
-    this.constructApiData(response);
+    const requestUrl = apiDomain + masterListMethod;
+    const inputData = {
+      mod: "IMAGE_SLIDER",
+      data_arr: {},
+    };
+    const { data } = await postApi(requestUrl, inputData);
+    if (data && data.length > 0) {
+      this.constructApiData(data);
+    } else {
+      const response = sampleApi;
+      this.constructApiData(response);
+    }
   }
 
   constructApiData = (data) => {
     let imageList = [];
-    if (data.docs && data.docs.length > 0) {
-      const allImages = data.docs;
+    if (
+      data &&
+      data.data &&
+      data.data.success &&
+      data.data.success.length > 0
+    ) {
+      const allImages = data.data.success;
       imageList = allImages.map((item) => {
         const composeObj = {
-          image: item.image,
-          imageLink: item.imageLink,
+          image: item.image_path,
+          imageLink: item.web_link,
         };
         return composeObj;
       });
@@ -108,7 +120,7 @@ export class Home extends Component {
               <div className="col-md-2 offset-md-5 col-sm-6 offset-sm-0">
                 <h1>
                   <img
-                    src="https://mobatic.sidereal.in/shopping/images/blueburylogo.png"
+                    src={`${PUBLIC_URL}${imagePath}/blueburylogo.png`}
                     style={{ width: "10rem" }}
                     alt={"blueburylogo"}
                   />
@@ -149,19 +161,19 @@ export class Home extends Component {
 
             <div className="row">
               <div className="col-md-12 text-center">
-                <Link
-                  target={"_blank"}
-                  to={
+                <a
+                  href={
                     "https://play.google.com/store/apps/details?id=com.siderealdot.blueberry"
                   }
+                  target={"_blank"}
+                  rel={"noopener noreferrer"}
                 >
-                  {" "}
                   <img
-                    src="https://mobatic.sidereal.in/shopping/images/playstore.png"
+                    src={`${PUBLIC_URL}${imagePath}/playstore.png`}
                     style={{ width: "20rem" }}
                     alt={"home7"}
                   />
-                </Link>
+                </a>
               </div>
             </div>
           </div>

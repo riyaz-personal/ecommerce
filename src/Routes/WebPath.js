@@ -3,7 +3,7 @@ const WebPath = {
   Privacy: "/privacy",
   Terms: "/terms",
   ProductList: "/store/",
-  ProductDetail: "/product",
+  ProductDetail: "/product/",
   OrderCart: "/order",
   Login: "/login",
   OrderList: "/order-list",
@@ -13,6 +13,9 @@ const WebPath = {
   // Reuse routes path
   get ProductListId() {
     return this.ProductList + ":id";
+  },
+  get ProductDetailId() {
+    return this.ProductDetail + ":id";
   },
 };
 export default WebPath;

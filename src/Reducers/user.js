@@ -3,21 +3,12 @@
 | Import required constant 
 |--------------------------------------------------
 */
-import {
-  RESET_ORDER_STATE,
-  PRODUCT_SEARCH_START,
-  PRODUCT_SEARCH_SUCCESS,
-  PRODUCT_SEARCH_ERROR,
-  SELECTED_PRODUCT_START,
-  SELECTED_PRODUCT_SUCCESS,
-  SELECTED_PRODUCT_ERROR,
-} from "../Constants";
+import { RESET_ORDER_STATE, USER_DATA_START, USER_DATA_SUCCESS, USER_DATA_ERROR } from "../Constants";
 
 //setInitialValues
 export const initialValues = {
-  searchList: [],
-  selectedProduct: "",
-};
+ userDetails: {},
+}
 
 /**
 |--------------------------------------------------
@@ -31,29 +22,16 @@ export default (state = initialValues, action) => {
       return {
         ...initialValues,
       };
-    case PRODUCT_SEARCH_START:
+    case USER_DATA_START:
       return {
         ...state,
       };
-    case PRODUCT_SEARCH_SUCCESS:
+    case USER_DATA_SUCCESS:
       return {
         ...state,
-        searchList: action.searchList,
+        userDetails: action.userDetails,
       };
-    case PRODUCT_SEARCH_ERROR:
-      return {
-        ...state,
-      };
-    case SELECTED_PRODUCT_START:
-      return {
-        ...state,
-      };
-    case SELECTED_PRODUCT_SUCCESS:
-      return {
-        ...state,
-        selectedProduct: action.selectedProduct,
-      };
-    case SELECTED_PRODUCT_ERROR:
+    case USER_DATA_ERROR:
       return {
         ...state,
       };

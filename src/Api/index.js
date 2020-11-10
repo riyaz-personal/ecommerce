@@ -15,21 +15,20 @@ export async function getApi(requestUrl) {
   return output;
 }
 
-export async function postApi(requestUrl, inputData) {
+export function postApi(requestUrl, inputData) {
   let output = {};
   const requestOptions = {
     method: "POST",
     headers: {
       calling_source: "Web",
       Authorization: "RgUkXp2s5v8y5B8E7H1MbQeThVmYq3t6",
-      calling_app: "shopview"
+      calling_app: "shopview",
     },
     body: JSON.stringify(inputData),
   };
-  await fetch(requestUrl, requestOptions)
+  fetch(requestUrl, requestOptions)
     .then(async (response) => {
-      console.log('response', response);
-      output.data = await response;
+      output.data = JSON.stringify(response);
     })
     .catch((error) => (output.error = error));
   return output;

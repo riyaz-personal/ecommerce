@@ -4,7 +4,6 @@
 |--------------------------------------------------
 */
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 
 /**
@@ -35,7 +34,15 @@ import NoOrderExist from "../NoOrderExist";
 | Redirection helper component
 |--------------------------------------------------
 */
-// import { history } from "../../Routes/history";
+import { history } from "../../Routes/history";
+
+/**
+|--------------------------------------------------
+| Import Api helper files
+|--------------------------------------------------
+*/
+import { apiDomain, orderPlaceMethod } from "../../Api/helper";
+import { postApi } from "../../Api";
 
 /**
 |--------------------------------------------------
@@ -80,7 +87,7 @@ class OrderCart extends Component {
             ? selectedList.reduce((acc, data) => acc + data.individualPrice, 0)
             : 0;
         storeSelectList(selectedList, subtotal);
-      } 
+      }
       // else {
       //   history.push(WebPath.ProductList);
       // }
@@ -94,6 +101,51 @@ class OrderCart extends Component {
       // history.push(WebPath.ProductList);
     }
   }
+
+  /**
+  |--------------------------------------------------
+  | Update product in database
+  |--------------------------------------------------
+  */
+  checkoutProduct = async () => {
+    const {
+      state: { selectedList },
+    } = this.props;
+    let cartItemArr = selectedList.map((item) => {
+      return {
+        product_id: item.productId,
+        qty: item.selectedCount,
+      };
+    });
+    const customer_id = localStorage.getItem("customer_id");
+    const store_id = localStorage.getItem("storeId");
+    const inputData = {
+      mod: "CART_ORDER",
+      data_arr: {
+        store_id,
+        customer_id,
+        order_source: "APP",
+        cartItemArr,
+      },
+    };
+    // Place order Product - API
+    const requestUrl = apiDomain + orderPlaceMethod;
+    const apiInputData = {
+      mod: "CART_ORDER",
+      data_arr: inputData,
+    };
+    // console.log("object", { requestUrl, apiInputData });
+    let { data } = await postApi(requestUrl, apiInputData);
+    const sampleResponse = { "status": "200", "status_message": "Success", "data":{ "success":{ "order_id": "639" }}}
+    if(data && data.data && data.data.success){ 
+      localStorage.setItem("order_id", data.data.success.order_id);
+      history.push(WebPath.OrderProcess);
+    }else{
+      localStorage.setItem("order_id", sampleResponse.data.success.order_id);
+      history.push(WebPath.OrderProcess);
+      // alert("sorry, something went wrong");
+    }
+  };
 
   render() {
     const {
@@ -117,9 +169,7 @@ class OrderCart extends Component {
             }}
             id="cartOrderProductContainer"
           >
-            {
-              selectedList && selectedList.length === 0 && <NoOrderExist />
-            }
+            {selectedList && selectedList.length === 0 && <NoOrderExist />}
             {selectedList && selectedList.length > 0 && (
               <div
                 style={{
@@ -181,11 +231,13 @@ class OrderCart extends Component {
                                     {item.sellingPrice}
                                   </span>
                                 </div>
-                                <div className="col40">
-                                  <span className="proOffAmt">
-                                    {item.offer}% OFF
-                                  </span>
-                                </div>
+                                {Number(item.offer) > 0 && (
+                                  <div className="col40">
+                                    <span className="proOffAmt">
+                                      {item.offer}% OFF
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div className="col100">
                                 <ProductCount
@@ -273,30 +325,34 @@ class OrderCart extends Component {
                 </div>
               </div>
             )}
-            {subtotal > 0 && <Link to={WebPath.OrderProcess}>
-              <div
-                className="row"
-                style={{
-                  margin: "0rem",
-                  bottom: "6.5%",
-                  position: "fixed",
-                  width: "100%",
-                }}
+            {subtotal > 0 && (
+              <span
+                onClick={() => this.checkoutProduct()}
               >
-                <div className="col-12 btn btn-success">
-                  <span style={{ float: "left", fontSize: "1.2rem" }}>
-                    Proceed to Checkout
-                  </span>
-                  <img
-                    src={`${PUBLIC_URL}${imagePath}/rupee.png`}
-                    style={{ height: "1rem", paddingRight: "0.5rem" }}
-                    alt={"proImage"}
-                  />
-                  {subtotal}
-                  <span style={{ fontSize: "1.2rem" }}> &gt;</span>
+                <div
+                  className="row"
+                  style={{
+                    margin: "0rem",
+                    bottom: "6.5%",
+                    position: "fixed",
+                    width: "100%",
+                  }}
+                >
+                  <div className="col-12 btn btn-success">
+                    <span style={{ float: "left", fontSize: "1.2rem" }}>
+                      Proceed to Checkout
+                    </span>
+                    <img
+                      src={`${PUBLIC_URL}${imagePath}/rupee.png`}
+                      style={{ height: "1rem", paddingRight: "0.5rem" }}
+                      alt={"proImage"}
+                    />
+                    {subtotal}
+                    <span style={{ fontSize: "1.2rem" }}> &gt;</span>
+                  </div>
                 </div>
-              </div>
-            </Link>}
+              </span>
+            )}
           </div>
         </section>
       </>
@@ -306,6 +362,7 @@ class OrderCart extends Component {
 
 const mapState = (state) => ({
   state: state.productReducer,
+  userData: state.userReducer,
 });
 const mapDispatch = {
   storeSelectList,

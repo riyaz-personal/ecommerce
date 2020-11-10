@@ -43,8 +43,13 @@ import { history } from "../../Routes/history";
 | Import Api helper files
 |--------------------------------------------------
 */
-import { imagePath, storeIdDefault } from "../../Api/helper";
-// import { getApi } from "../../Api";
+import {
+  apiDomain,
+  listAddressMethod,
+  imagePath,
+  storeIdDefault,
+} from "../../Api/helper";
+import { postApi } from "../../Api";
 
 /**
 |--------------------------------------------------
@@ -76,50 +81,46 @@ class OrderProcess extends Component {
       openListAddress: false,
       openAddAddress: false,
       totalPopupState: ["openListAddress", "openPayment", "openAddAddress"],
-      storeListAddress:[],
-      payingMethod: []
+      storeListAddress: [],
+      payingMethod: [],
     };
   }
 
   async componentDidMount() {
-    // const requestUrl = apiDomain + listAddressMethod;
-    // const storeListAddress = await getApi(requestUrl);
-    // console.log('storeListAddress', storeListAddress);
-    const { currentOrderProcess, selectedProduct: {selectedList} } = this.props;
-    if(!selectedList || selectedList.length === 0){
+    const {
+      currentOrderProcess,
+      selectedProduct: { selectedList },
+    } = this.props;
+    if (!selectedList || selectedList.length === 0) {
       history.push(WebPath.ProductList + storeIdDefault);
-    }
-    const storeListAddress = [{
-      "addressId": 1,
-      "address": "Office : 3asdf, Asdf, Asdf, Fasdf, Asdf"
-    }, {
-      "addressId": 2,
-      "address": "Home : 3asdf, Asdf, Asdf, Fasdf, Asdf"
-    },{
-      "addressId": 3,
-      "address": "Office : fasdfasdf, fasdf, asdf, Fasdf, Asdf"
-    }];
-    // const storeListAddress = [];
-    const payingMethod = [{
-      modeImage: `${PUBLIC_URL}${imagePath}/payment_cod.png`,
-      modeAlt: "cashOnDelivery",
-      mode: "COD"
-    },{
-      modeImage: `${PUBLIC_URL}${imagePath}/payment_paytm.png`,
-      modeAlt: "paytm",
-      mode: "PAYTM"
-    }]
+    }    
+    const storeListAddress = await this.getListAddressApi();
+    const payingMethod = [
+      {
+        modeImage: `${PUBLIC_URL}${imagePath}/payment_cod.png`,
+        modeAlt: "cashOnDelivery",
+        mode: "cod",
+      },
+      {
+        modeImage: `${PUBLIC_URL}${imagePath}/payment_paytm.png`,
+        modeAlt: "paytm",
+        mode: "PAYTM",
+      },
+    ];
     const openListAddress = true;
     currentOrderProcess("openListAddress");
     this.setState({ openListAddress, storeListAddress, payingMethod });
   }
 
-  componentDidUpdate(prevProps) {
-    const { totalPopupState } = this.state;
+ async componentDidUpdate(prevProps) {
+    let { totalPopupState, storeListAddress } = this.state;
     const {
       state: { currentPopup },
     } = this.props;
     if (prevProps.state.currentPopup !== currentPopup) {
+      if(currentPopup === "openListAddress"){
+        storeListAddress = await this.getListAddressApi();
+      }
       const remainingPopupClose = totalPopupState
         .filter((item) => item !== currentPopup)
         .map((sub) => {
@@ -127,8 +128,62 @@ class OrderProcess extends Component {
         });
       // All other process to be false state value
       const remainingState = Object.assign({}, ...remainingPopupClose);
-      this.setState({ [currentPopup]: true, ...remainingState });
+      this.setState({ [currentPopup]: true, ...remainingState, storeListAddress });
     }
+  }
+
+  getListAddressApi = async () =>{
+    const requestUrl = apiDomain + listAddressMethod;
+    const customer_id = localStorage.getItem("customer_id");
+    const inputData = { mod: "ADDRESS_LIST", data_arr: { customer_id } };
+    let { data } = await postApi(requestUrl, inputData);
+    const sampleResponse = {
+      status: "200",
+      status_message: "Success",
+      data: {
+        success: [
+          {
+            address_id: "4",
+            customer_id: "1",
+            address_title: "Office",
+            address: "T2,1403,RPS Savana",
+            landmark: "Kheri Road",
+            area_name: "Faridabad",
+            city_name: "Faridabad",
+            state_name: "Faridabad",
+            country_name: "Faridabad",
+            pincode: "121002",
+            latitude: "77.355772331357",
+            longitude: "",
+            full_address:
+              "T2,1403,RPS Savana, Kheri Road, Faridabad, Faridabad, Faridabad",
+          },
+        ],
+      },
+    };
+    let storeListAddress = [];
+    if(data && data.data && data.data.success){
+      if(data.data.success.length > 0){
+        storeListAddress = data.data.success.map((item) => {
+          const data = {
+            addressId: item.address_id,
+            address: `${item.address_title} : ${item.address},${item.landmark},${item.area_name},${item.city_name},${item.state_name},${item.country_name}`
+          }
+          return data;
+        })
+      }
+    }else{
+      if(sampleResponse.data.success.length > 0){
+        storeListAddress = sampleResponse.data.success.map((item) => {
+          const data = {
+            addressId: item.address_id,
+            address: `${item.address_title} : ${item.address},  ${item.landmark},  ${item.city_name},  ${item.state_name},  ${item.country_name}`
+          }
+          return data;
+        })
+      }
+    }
+    return storeListAddress;
   }
 
   openComponentClick = (popup) => {
@@ -137,7 +192,13 @@ class OrderProcess extends Component {
   };
 
   render() {
-    const { openPayment, openListAddress, openAddAddress, storeListAddress, payingMethod } = this.state;
+    const {
+      openPayment,
+      openListAddress,
+      openAddAddress,
+      storeListAddress,
+      payingMethod,
+    } = this.state;
 
     return (
       <>
@@ -155,27 +216,29 @@ class OrderProcess extends Component {
               marginRight: "0",
             }}
           >
-            {!openListAddress && <div className="row" style={{ margin: "0rem" }}>
-              <div
-                className="col100"
-                id="loginScreenBackBtn"
-                style={{ padding: "0rem", display: "block" }}
-              >
-                <div className="col33">
-                  <img
-                    src={`${PUBLIC_URL}${imagePath}/return_back.png`}
-                    style={{ height: "2.5rem", cursor: "pointer" }}
-                    alt={"back.png"}
-                    onClick={()=>this.openComponentClick("openListAddress")}
-                  />
+            {!openListAddress && (
+              <div className="row" style={{ margin: "0rem" }}>
+                <div
+                  className="col100"
+                  id="loginScreenBackBtn"
+                  style={{ padding: "0rem", display: "block" }}
+                >
+                  <div className="col33">
+                    <img
+                      src={`${PUBLIC_URL}${imagePath}/return_back.png`}
+                      style={{ height: "2.5rem", cursor: "pointer" }}
+                      alt={"back.png"}
+                      onClick={() => this.openComponentClick("openListAddress")}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>}
+            )}
           </div>
         </section>
         {openListAddress && <ListAddress storeListAddress={storeListAddress} />}
         {openAddAddress && <AddAddress />}
-        {openPayment && <PaymentMethod payingMethod={payingMethod} />}        
+        {openPayment && <PaymentMethod payingMethod={payingMethod} />}
       </>
     );
   }
@@ -183,7 +246,7 @@ class OrderProcess extends Component {
 
 const mapState = (state) => ({
   state: state.orderReducer,
-  selectedProduct: state.productReducer
+  selectedProduct: state.productReducer,
 });
 const mapDispatch = {
   currentOrderProcess,

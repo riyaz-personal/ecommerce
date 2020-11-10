@@ -42,6 +42,7 @@ import { imagePath } from "../../Api/helper";
  |--------------------------------------------------
  */
 import { storeSelectList } from "../../Actions/productCalculation";
+import { userDetailsData } from "../../Actions/userDetails";
 
 /**
 |--------------------------------------------------
@@ -86,13 +87,17 @@ export class Header extends Component {
       mod: "CUSTOMER_LOGOUT",
       data_arr: { customer_id: "1" },
     };
-    const { data, error } = await postApi(requestUrl, inputData);
+    const { data } = await postApi(requestUrl, inputData);
     if (data) {
       localStorage.clear();
       storeSelectList([], 0); // reset redux value
       history.push(WebPath.Home);
     } else {
-      alert(error);
+      localStorage.clear();
+      storeSelectList([], 0); // reset redux value
+      userDetailsData({}); // reset redux value
+      history.push(WebPath.Home);
+      // alert(error);
     }
   };
 
@@ -152,5 +157,5 @@ export class Header extends Component {
 }
 
 const mapState = () => ({});
-const mapDispatch = { storeSelectList };
+const mapDispatch = { storeSelectList, userDetailsData };
 export default connect(mapState, mapDispatch)(Header);

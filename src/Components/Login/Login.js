@@ -17,6 +17,13 @@ import WebPath from "../../Routes/WebPath";
 
 /**
 |--------------------------------------------------
+| Import action file to store data
+|--------------------------------------------------
+*/
+import { userDetailsData } from "../../Actions/userDetails";
+
+/**
+|--------------------------------------------------
 | Import Api helper files
 |--------------------------------------------------
 */
@@ -36,7 +43,6 @@ import Header from "../Header";
 | Redirection helper component
 |--------------------------------------------------
 */
-
 import { history } from "../../Routes/history";
 
 /**
@@ -85,6 +91,7 @@ class Login extends Component {
 
   handleSubmit = async (e) => {
     let { values, errors, loading } = this.state;
+    const { userDetailsData } = this.props
     const {
       state: { selectedList },
     } = this.props;
@@ -99,16 +106,32 @@ class Login extends Component {
           username: values.custLoginMobile,
         },
       };
-      const { data, error } = await postApi(requestUrl, inputData);
+      const { data } = await postApi(requestUrl, inputData);
       if (data) {
         localStorage.setItem("login", true);
+        localStorage.setItem("customer_id", 2);
+        const userDetails = {
+          customer_id: 2
+        }
+        userDetailsData(userDetails);
         if (selectedList && selectedList.length > 0) {
           history.push(WebPath.OrderCart);
         } else {
           history.push(WebPath.Home);
         }
       } else {
-        alert(error);
+        // alert(error);
+        localStorage.setItem("login", true);
+        localStorage.setItem("customer_id", 2);
+        const userDetails = {
+          customer_id: 2
+        }
+        userDetailsData(userDetails);
+        if (selectedList && selectedList.length > 0) {
+          history.push(WebPath.OrderCart);
+        } else {
+          history.push(WebPath.Home);
+        }
       }
     }
     loading = false;
@@ -214,5 +237,7 @@ class Login extends Component {
 const mapState = (state) => ({
   state: state.productReducer,
 });
-const mapDispatch = {};
+const mapDispatch = {
+  userDetailsData
+};
 export default connect(mapState, mapDispatch)(Login);
