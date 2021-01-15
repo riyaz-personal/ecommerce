@@ -19,7 +19,7 @@ import WebPath from "../../Routes/WebPath";
 | Import folder path 
 |--------------------------------------------------
 */
-import { imagePath, masterListMethod, solarMethod } from "../../Api/helper";
+import { filterParam, imagePath, masterListMethod, solarMethod } from "../../Api/helper";
 
 /**
  |--------------------------------------------------
@@ -54,7 +54,8 @@ import {
   searchAll,
   searchParam,
   storeParam,
-  businessParam,
+  mainCategoryParam,
+  combineParam
 } from "../../Api/helper";
 import { postApi } from "../../Api";
 
@@ -235,7 +236,9 @@ class ProductList extends Component {
   |--------------------------------------------------
   */
   triggerBuisnessType = async (categoryId) => {
-    const param = searchParam + businessParam + categoryId;
+    const storeId = localStorage.getItem("storeId");
+    // const param = searchParam + businessParam + categoryId;
+    const param = searchParam + storeParam + storeId + combineParam + filterParam + mainCategoryParam + categoryId;
     const dataParam = selectMethod + "?" + param;
     const requestUrl = apiDomain + solarMethod;
     const inputData = {

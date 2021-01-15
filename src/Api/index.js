@@ -20,6 +20,9 @@ export function postApi(requestUrl, inputData) {
   const requestOptions = {
     method: "POST",
     headers: {
+      "Content-Type": "application/json;charset=UTF-8",
+      Accept: "application/json, text/plain, */*",
+      "Access-Control-Allow-Methods":  "GET, POST, PUT, DELETE",
       calling_source: "Web",
       Authorization: "RgUkXp2s5v8y5B8E7H1MbQeThVmYq3t6",
       calling_app: "shopview",

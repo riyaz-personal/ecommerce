@@ -40,6 +40,7 @@ export const filterParam = "fq=";
 export const locationParam = "pt=";
 export const dParam = "d=";
 export const rowsParam = "rows=";
+export const combineParam = "&";
 
 export const storeParam = "store_id:";
 export const businessParam = "business_type:";
