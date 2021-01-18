@@ -120,13 +120,10 @@ class OrderCart extends Component {
     const customer_id = localStorage.getItem("customer_id");
     const store_id = localStorage.getItem("storeId");
     const inputData = {
-      mod: "CART_ORDER",
-      data_arr: {
         store_id,
         customer_id,
         order_source: "APP",
-        cartItemArr,
-      },
+        cartItemArr,      
     };
     // Place order Product - API
     const requestUrl = apiDomain + orderPlaceMethod;

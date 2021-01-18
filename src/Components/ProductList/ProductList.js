@@ -47,6 +47,7 @@ import {
 | Import Api helper files
 |--------------------------------------------------
 */
+
 import {
   apiDomain,
   productMethod,
@@ -54,8 +55,9 @@ import {
   searchAll,
   searchParam,
   storeParam,
-  mainCategoryParam,
-  combineParam
+  combineParam,
+  // businessParam,
+  mainCategoryParam
 } from "../../Api/helper";
 import { postApi } from "../../Api";
 
@@ -64,8 +66,8 @@ import { postApi } from "../../Api";
 | Check with sample API output - [sv-product api]
 |--------------------------------------------------
 */
-import sampleApi from "./sampleApi";
-import categoryApi from "./categorySampleApi";
+// import sampleApi from "./sampleApi";
+// import categoryApi from "./categorySampleApi";
 
 /**
 |--------------------------------------------------
@@ -119,12 +121,13 @@ class ProductList extends Component {
     this.setState({ loading: true });
     const { data } = await postApi(requestUrl, inputData);
     let productList;
-    if (data && data.length > 0) {
-      productList = await this.constructApiData(data);
-    } else {
-      const response = sampleApi.response;
-      productList = await this.constructApiData(response);
-    }
+    if (data) {
+      productList = await this.constructApiData(data.response);
+    } 
+    // else {
+    //   const response = sampleApi.response;
+    //   productList = await this.constructApiData(response);
+    // }
     let allProducts = this.renderProductList(productList);
 
     // Category fetch Data - API
@@ -136,17 +139,13 @@ class ProductList extends Component {
       },
     };
     let categoryData = await postApi(categoryRequestUrl, categoryInputData);
-    if (
-      categoryData &&
-      categoryData.data &&
-      categoryData.data.success &&
-      categoryData.data.success.length > 0
-    ) {
-      categoryData = await this.constructApiCategory(data);
-    } else {
-      const response = categoryApi;
-      categoryData = await this.constructApiCategory(response);
-    }
+    if (categoryData && categoryData.data && categoryData.data && categoryData.data.data.success && categoryData.data.data.success.length > 0) {
+      categoryData = await this.constructApiCategory(categoryData.data);
+    } 
+    //  else {
+    //   const response = categoryApi;
+    //   categoryData = await this.constructApiCategory(response);
+    // }
     this.setState({
       productList: allProducts,
       allProducts,
@@ -208,14 +207,16 @@ class ProductList extends Component {
       data.data.success.length > 0
     ) {
       const categoryData = data.data.success;
-      categoryList = categoryData.map((item) => {
-        const composeObj = {
-          categoryId: item.id,
-          categoryLabel: item.business_type,
-        };
-        return composeObj;
-      });
-    }
+      if(categoryData && categoryData.length > 0){
+        categoryList = categoryData.map((item) => {
+          const composeObj = {
+            categoryId: item.id,
+            categoryLabel: item.business_type,
+          };
+          return composeObj;
+        });
+      }
+      }
     return categoryList;
   };
 
@@ -246,14 +247,15 @@ class ProductList extends Component {
       data_param: dataParam,
     };
     this.setState({ loading: true });
-    let { data } = await postApi(requestUrl, inputData);
+    let {data} = await postApi(requestUrl, inputData);
     let productList;
-    if (data && data.length > 0) {
-      productList = await this.constructApiData(data);
-    } else {
-      const response = sampleApi.response;
-      productList = await this.constructApiData(response);
-    }
+    if (data) {
+      productList = await this.constructApiData(data.response);
+    } 
+    // else {
+    //   const response = sampleApi.response;
+    //   productList = await this.constructApiData(response);
+    // }
     let allProducts = this.renderProductList(productList);
     this.setState({
       productList: allProducts,
@@ -333,7 +335,7 @@ class ProductList extends Component {
 
                 <div className="Category-lists">
                   <ul className="catergory-types">
-                  {categoryList &&
+                  {categoryList && categoryList.length > 0 &&
                     categoryList.map((item, index) => {
                       return (
                      <li
@@ -383,6 +385,11 @@ class ProductList extends Component {
                 )}
                 {!loading && (
                   <div className="row col-lg-12">
+                    {
+                     productList && productList.length === 0 && <>
+                     No Product List 
+                     </> 
+                    }
                     {productList &&
                       productList.map((item, index) => {
                         return (

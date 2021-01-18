@@ -39,7 +39,7 @@ import { postApi } from "../../Api";
 | Check with sample API output - [sv-product api]
 |--------------------------------------------------
 */
-import sampleApi from "./sampleApi";
+// import sampleApi from "./sampleApi";
 
 /**
 |--------------------------------------------------
@@ -78,12 +78,9 @@ export class Home extends Component {
       data_arr: {},
     };
     const { data } = await postApi(requestUrl, inputData);
-    if (data && data.length > 0) {
+    if (data) {
       this.constructApiData(data);
-    } else {
-      const response = sampleApi;
-      this.constructApiData(response);
-    }
+    } 
   }
 
   constructApiData = (data) => {
@@ -143,7 +140,8 @@ export class Home extends Component {
                 return (
                   <div className="row" key={index}>
                     <div className="col-md-12">
-                      <Link to={item.imageLink}>
+                    <a rel={"noopener noreferrer"} href={item.imageLink} target={"_blank"}>
+                      {/* <Link to={item.imageLink}> */}
                         <img
                           src={item.image}
                           style={{
@@ -153,7 +151,9 @@ export class Home extends Component {
                           }}
                           alt={"home2"}
                         />
-                      </Link>
+                      {/* </Link> */}
+
+                    </a>
                     </div>
                   </div>
                 );
